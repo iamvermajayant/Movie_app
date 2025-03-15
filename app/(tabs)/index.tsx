@@ -1,9 +1,10 @@
-import { Text, View } from "react-native";
+import { images } from "@/constants/images";
+import { Image, Text, View } from "react-native";
 
 export default function Index() {
   return (
-    <View className="flex-1 justify-center items-center">
-      <Text className="text-5xl text-accent font-bold py-4">नमस्ते</Text>
+    <View className="flex-1 bg-primary">
+      <Image source={images.bg} className="absolute top-0 left-0 w-full h-full" />
     </View>
   );
 }
