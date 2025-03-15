@@ -8,12 +8,12 @@ import Profile from './profile';
 
 
 const TabIcon = ({ focused, icon, title }: any) => {
-
+    
     if (focused) {
         return (
             <ImageBackground
                 source={images.highlight}
-                className='flex flex-row w-full flex-1 min-w-[112px] min-h-14 mt-4 justify-center items-center rounded-full overflow-hidden'
+                className='flex flex-row w-full flex-1 min-w-[112px] min-h-[51px] mt-4 justify-center items-center rounded-full overflow-hidden'
             >
                 <Image source={icon} tintColor="#151312" className='size-5' />
                 <Text className='text-secondary text-base font-semibold ml-2'>{title}</Text>
@@ -22,9 +22,9 @@ const TabIcon = ({ focused, icon, title }: any) => {
     }
 
     return (
-        <View className='size-full justify-center items-center mt-4 rounded-full'>
-            <Image source={icon} tintColor="#151312" className='size-5' />
-            <Text className='text-secondary text-base font-semibold ml-2'>{title}</Text>
+        <View className='size-full justify-center flex-row items-center mt-4 rounded-full'>
+            <Image source={icon} tintColor="#fff" className='size-5' />
+            {/*  */}
         </View>
     )
 }
@@ -98,7 +98,7 @@ const _layout = () => {
                 }}
             />
             <Tabs.Screen
-                name='Profile'
+                name='profile'
                 options={{
                     title: '',
                     headerShown: false,
