@@ -5,6 +5,7 @@ import SearchBar from "@/components/SearchBar";
 import { useRouter } from "expo-router";
 import useFetch from "@/services/useFetch";
 import { fetchMovies } from "@/services/api";
+import MovieCard from "@/components/MovieCard";
 
 export default function Index() {
   const router = useRouter();
@@ -15,9 +16,9 @@ export default function Index() {
     <View className="flex-1 bg-primary">
       <Image source={images.bg} className="absolute w-full z-0" />
 
-      <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false} contentContainerStyle={{ minHeight: '100%', paddingBottom: 10 }}>
+      <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10 }}>
         <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
-      </ScrollView>
+      
 
       {moviesLoading ? (
         <ActivityIndicator
@@ -30,7 +31,7 @@ export default function Index() {
           {moviesError?.message}
         </Text>
       ) : (
-          <View className="absolute top-40 w-full px-5">
+          <>
           <SearchBar 
             onPress={() => router.push('/search')}
             placeholder="Search for movies"
@@ -43,9 +44,9 @@ export default function Index() {
           <FlatList
             data={movies}
             renderItem={({ item }) => (
-              <Text className="text-white text-sm">
-                {item.title}
-              </Text>
+              <MovieCard
+                {...item}
+              />
             )}
             keyExtractor={(item) => item.id.toString()}
             numColumns={3}
@@ -58,15 +59,10 @@ export default function Index() {
             className="mt-2 pb-32"
             scrollEnabled={false}
           />
-        </View>
+        </>
       ))}
-
-      
-
+      </ScrollView>
     </View>
   );
 }
-
-
-
 
