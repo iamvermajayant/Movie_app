@@ -21,6 +21,7 @@ export const fetchMovies = async ({ query }: { query: string }) => {
     }
 
     const data = await response.json();
+    
 
     return data.results;
 }
