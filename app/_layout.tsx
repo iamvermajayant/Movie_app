@@ -7,7 +7,7 @@ import './globals.css';
 export default function RootLayout() {
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar hidden={false} translucent={true} style="light" />
+      <StatusBar hidden={true} translucent={true} style="light" />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="movies/[id]" options={{ headerShown: false }} />
