@@ -1,6 +1,6 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import React from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { fetchMovieDetails } from "@/services/api";
 import useFetch from "@/services/useFetch";
 import { icons } from "@/constants/icons";
@@ -59,10 +59,41 @@ const MovieDetails = () => {
           <MovieInfo label="Overview" value={movie?.overview} />
           <MovieInfo
             label="Genres"
-            value={movie?.genres.map((g) => g.name).join(" - ")}
+            value={movie?.genres.map((g) => g.name).join(" - ") || "N/A"}
+          />
+          <View className="flex flex-row justify-between w-1/2">
+            <MovieInfo
+              label="Budget"
+              value={`$${(movie?.budget ?? 0) / 1_000_000} million`}
+            />
+            <MovieInfo
+              label="Revenue"
+              value={`$${(movie?.revenue ?? 0) / 1_000_000} million`}
+            />
+          </View>
+          <MovieInfo
+            label="Production Companies"
+            value={
+              movie?.production_companies.map((p) => p.name).join(", ") || "N/A"
+            }
+          />
+          <MovieInfo
+            label="Production Countries"
+            value={
+              movie?.production_countries.map((c) => c.name).join(", ") || "N/A"
+            }
           />
         </View>
       </ScrollView>
+      <TouchableOpacity
+        className="absolute bottom-5 left-0 right-0 mx-5 bg-accent px-4 rounded-lg py-3.5 flex flex-row items-center justify-center z-50"
+        onPress={router.back}
+        >
+          <Image source={icons.arrow} className="size-5 mr-1 mt-0.5 rotate-180" tintColor="#fff"/>
+          <Text className="text-white font-semibold text-base">
+            Go Back
+          </Text>
+        </TouchableOpacity>
     </View>
   );
 };
