@@ -26,10 +26,6 @@ const Search = () => {
     const timeoutId = setTimeout(async () => {
       if (searchTerm.trim()) {
         await refetchMovies();
-
-        if (movies?.length > 0 && movies?.[0]) {
-          await updateSearchCount(searchTerm, movies[0]);
-        }
       } else {
         resetMovies();
       }
@@ -39,7 +35,9 @@ const Search = () => {
   }, [searchTerm]);
 
   useEffect(() => {
-    console.log("Movies data from API:", movies);  // Add this line to check if data is being received
+    if (movies?.length > 0 && movies?.[0]) {
+      updateSearchCount(searchTerm, movies[0]);
+    }
   }, [movies]);
 
   return (
