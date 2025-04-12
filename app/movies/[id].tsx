@@ -5,6 +5,7 @@ import { fetchMovieDetails } from "@/services/api";
 import useFetch from "@/services/useFetch";
 import { icons } from "@/constants/icons";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSavedMovies } from "@/contexts/SavedMoviesContext";
 import { showToast } from '@/config/toast';
 
 interface MovieInfoProps {
@@ -24,19 +25,43 @@ const MovieInfo = ({ label, value }: MovieInfoProps) => {
 const MovieDetails = () => {
   const { id } = useLocalSearchParams();
   const { user } = useAuth();
+  const { saveMovieToCollection, savedMovies } = useSavedMovies();
 
   const { data: movie, loading } = useFetch(() =>
     fetchMovieDetails(id as string)
   );
 
-  const handleSave = () => {
+  const isMovieSaved = savedMovies.some((savedMovie) => savedMovie.movieId === id);
+
+  const handleSave = async () => {
     if (!user) {
       showToast.error("Please sign in to save movies to your collection");
       router.push('/(auth)/login');
       return;
     }
-    // TODO: Implement save movie functionality
-    showToast.success("Movie saved to your collection!");
+
+    if (!movie) {
+      showToast.error("Movie data not available");
+      return;
+    }
+
+    const movieData = {
+      userId: user.$id,
+      movieId: id,
+      title: movie.title,
+      posterPath: movie.poster_path,
+      voteAverage: movie.vote_average ? Math.round(movie.vote_average) : 0,
+      releaseDate: movie.release_date,
+    };
+
+    console.log('Saving movie with data:', movieData);
+    console.log('Vote average:', movie.vote_average);
+
+    try {
+      await saveMovieToCollection(id as string, movieData);
+    } catch (error) {
+      console.error('Error saving movie:', error);
+    }
   };
 
   return (
@@ -55,7 +80,11 @@ const MovieDetails = () => {
           <View className="flex-row justify-between items-center w-full">
             <Text className="text-white text-xl font-bold">{movie?.title}</Text>
             <TouchableOpacity onPress={handleSave}>
-              <Image source={icons.save} className="size-6" tintColor="#fff" />
+              <Image 
+                source={icons.save} 
+                className="size-6" 
+                tintColor={isMovieSaved ? "#4CAF50" : "#fff"} 
+              />
             </TouchableOpacity>
           </View>
           <View className="flex-row items-center gap-x-1 mt-2">

@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { useEffect } from 'react';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
+import { SavedMoviesProvider } from '../contexts/SavedMoviesContext';
 
 function RootLayoutNav() {
     const { user, loading } = useAuth();
@@ -95,7 +96,9 @@ function RootLayoutNav() {
 export default function RootLayout() {
     return (
         <AuthProvider>
-            <RootLayoutNav />
+            <SavedMoviesProvider>
+                <RootLayoutNav />
+            </SavedMoviesProvider>
         </AuthProvider>
     );
 }
