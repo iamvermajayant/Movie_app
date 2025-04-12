@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { account } from '../services/appwrite';
 import { Models } from 'react-native-appwrite';
+import { showToast } from '../config/toast';
 
 type AuthContextType = {
     user: Models.User<Models.Preferences> | null;
@@ -8,12 +9,14 @@ type AuthContextType = {
     login: (email: string, password: string) => Promise<void>;
     signup: (email: string, password: string, name: string) => Promise<void>;
     logout: () => Promise<void>;
+    session: Models.Session | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null);
+    const [session, setSession] = useState<Models.Session | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -25,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const currentUser = await account.get();
             setUser(currentUser);
         } catch (error) {
+            console.log('No user session:', error);
             setUser(null);
         } finally {
             setLoading(false);
@@ -33,28 +37,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const login = async (email: string, password: string) => {
         try {
-            await account.createSession(email, password);
+            console.log('Attempting to login with:', email);
+            const responseUser = await account.createEmailPasswordSession(email, password);
+            setSession(responseUser);
             const currentUser = await account.get();
+            console.log('Login successful, user:', currentUser);
             setUser(currentUser);
+            showToast.success('Login successful!');
         } catch (error: any) {
-            throw new Error(error.message || 'Failed to login. Please check your credentials.');
+            console.error('Login error:', error);
+            if (error.message.includes('Invalid credentials')) {
+                throw new Error('Invalid email or password');
+            } else if (error.message.includes('User not found')) {
+                throw new Error('No account found with this email');
+            } else {
+                throw new Error(error.message || 'Failed to login. Please try again.');
+            }
         }
     };
 
     const signup = async (email: string, password: string, name: string) => {
         try {
-            // First create the account
+            console.log('Attempting to signup with:', email);
             await account.create('unique()', email, password, name);
-            
-            // Then create a session to automatically log the user in
             await account.createSession(email, password);
-            
-            // Get the current user
             const currentUser = await account.get();
+            console.log('Signup successful, user:', currentUser);
             setUser(currentUser);
+            showToast.success('Account created successfully!');
         } catch (error: any) {
             console.error('Signup error:', error);
-            throw new Error(error.message || 'Failed to create account. Please try again.');
+            if (error.message.includes('already exists')) {
+                throw new Error('An account with this email already exists');
+            } else {
+                throw new Error(error.message || 'Failed to create account. Please try again.');
+            }
         }
     };
 
@@ -62,13 +79,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             await account.deleteSession('current');
             setUser(null);
+            showToast.success('Logged out successfully!');
         } catch (error: any) {
+            console.error('Logout error:', error);
             throw new Error(error.message || 'Failed to logout. Please try again.');
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, signup, logout, session }}>
             {children}
         </AuthContext.Provider>
     );

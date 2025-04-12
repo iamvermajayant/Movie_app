@@ -3,13 +3,25 @@ import { Client, Databases, ID, Query, Account } from "react-native-appwrite";
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
 const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
 
+// Log environment variables for debugging
+console.log('Appwrite Config:', {
+    endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
+    projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
+    platform: process.env.EXPO_PUBLIC_APPWRITE_PLATFORM
+});
+
 const client = new Client()
-  .setEndpoint("https://cloud.appwrite.io/v1") // Your API Endpoint
-  .setProject(process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!)
-  .setPlatform('com.movieapp.app'); // Your app bundle ID
+    .setEndpoint(process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
+    .setProject(process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!)
+    .setPlatform(process.env.EXPO_PUBLIC_APPWRITE_PLATFORM || 'com.movieapp.app');
 
 const databases = new Databases(client);
 const account = new Account(client);
+
+// Test connection
+account.get().catch(error => {
+    console.error('Appwrite connection test failed:', error);
+});
 
 export const updateSearchCount = async (query: string, movie: Movie) => {
 console.log("hello from updateSearchCount", query); 
@@ -61,4 +73,4 @@ export const getTrendingMovies = async (): Promise<TrendingMovie[] | undefined> 
   }
 }
 
-export { client, account };
+export { account, databases, client, ID };

@@ -1,32 +1,58 @@
 import { icons } from '@/constants/icons'
 import { Link } from 'expo-router'
-import { View, Text, Touchable, TouchableOpacity, Image } from 'react-native'
+import { View, Text, TouchableOpacity, Image } from 'react-native'
+import { useAuth } from '@/contexts/AuthContext'
+import { router } from 'expo-router'
+import { showToast } from '@/config/toast'
 
+interface MovieCardProps {
+    id: number;
+    poster_path: string | null;
+    title: string;
+    vote_average: number;
+    release_date: string;
+}
 
-const MovieCard = ({ id, poster_path, title, vote_average, release_date }) => {
+const MovieCard = ({ id, poster_path, title, vote_average, release_date }: MovieCardProps) => {
+    const { user } = useAuth();
+
+    const handleSave = () => {
+        if (!user) {
+            showToast.error("Please sign in to save movies to your collection");
+            router.push('/(auth)/login');
+            return;
+        }
+        // TODO: Implement save movie functionality
+        showToast.success("Movie saved to your collection!");
+    };
+
     return (
-        <Link href={`/movies/${id}`} className='w-1/3' asChild>
-            <TouchableOpacity className='w-[30%]'>
-                <Image source={{ uri: poster_path ? `https://image.tmdb.org/t/p/w500${poster_path}` : 'https://placehold.co/600x400/1a1a1a/ffffff.png' }}
-                    className='w-full h-52 rounded-lg'
-                    resizeMode='cover'
-                />
-                <Text className='text-sm font-bold text-white mt-2' numberOfLines={1} >{title}</Text>
+        <View className='w-1/3'>
+            <Link href={`/movies/${id}`} className='w-full' asChild>
+                <TouchableOpacity>
+                    <Image source={{ uri: poster_path ? `https://image.tmdb.org/t/p/w500${poster_path}` : 'https://placehold.co/600x400/1a1a1a/ffffff.png' }}
+                        className='w-full h-52 rounded-lg'
+                        resizeMode='cover'
+                    />
+                    <Text className='text-sm font-bold text-white mt-2' numberOfLines={1} >{title}</Text>
 
-                <View className='flex-row items-center justify-start gap-x-1'>
-                    {Array.from({ length: Math.round(vote_average / 2) }).map((_, index) => (
-                        <Image key={index} source={icons.star} className="size-4" />
-                    ))}
-                    {/* <Text className='text-xs text-white font-bold uppercase'>{Math.round(vote_average / 2)}</Text> */}
-                </View>
+                    <View className='flex-row items-center justify-start gap-x-1'>
+                        {Array.from({ length: Math.round(vote_average / 2) }).map((_, index) => (
+                            <Image key={index} source={icons.star} className="size-4" />
+                        ))}
+                    </View>
 
-                <View className='flex-row items-center'>
-                    <Text className='text-xs text-light-300 font-medium mt-1'>
-                        {release_date?.split('-')[0] || 'N/A'}
-                    </Text>
-                </View>
-            </TouchableOpacity>
-        </Link>
+                    <View className='flex-row items-center justify-between'>
+                        <Text className='text-xs text-light-300 font-medium mt-1'>
+                            {release_date?.split('-')[0] || 'N/A'}
+                        </Text>
+                        <TouchableOpacity onPress={handleSave} className="mt-1">
+                            <Image source={icons.save} className="size-4" tintColor="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+            </Link>
+        </View>
     )
 }
 

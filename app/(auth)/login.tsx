@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
+import { showToast } from '../../config/toast';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
 
     const handleLogin = async () => {
+        if (!email || !password) {
+            showToast.error('Please enter both email and password');
+            return;
+        }
+
+        setLoading(true);
         try {
             await login(email, password);
             router.replace('/(tabs)');
-        } catch (error) {
-            Alert.alert('Error', 'Failed to login. Please check your credentials.');
+        } catch (error: any) {
+            showToast.error(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -40,10 +50,13 @@ export default function Login() {
                 />
                 
                 <TouchableOpacity
-                    className="bg-blue-500 p-3 rounded-lg mb-4"
+                    className={`bg-blue-500 p-3 rounded-lg mb-4 ${loading ? 'opacity-50' : ''}`}
                     onPress={handleLogin}
+                    disabled={loading}
                 >
-                    <Text className="text-white text-center font-semibold">Login</Text>
+                    <Text className="text-white text-center font-semibold">
+                        {loading ? 'Logging in...' : 'Login'}
+                    </Text>
                 </TouchableOpacity>
                 
                 <View className="flex-row justify-center">
